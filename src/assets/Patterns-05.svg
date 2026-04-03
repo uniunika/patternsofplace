@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #721c1c;
+      }
+
+      .cls-2 {
+        fill: #190707;
+        stroke: #8e2525;
+        stroke-miterlimit: 10;
+        stroke-width: 9px;
+      }
+    </style>
+  </defs>
+  <g>
+    <g id="_Radial_Repeat_" data-name="&amp;lt;Radial Repeat&amp;gt;">
+      <polygon class="cls-2" points="246.6 512.35 5.53 753.76 5.71 995 246.95 994.83 488.02 753.41 487.84 512.17 246.6 512.35"/>
+    </g>
+    <g id="_Radial_Repeat_-2" data-name="&amp;lt;Radial Repeat&amp;gt;">
+      <polygon class="cls-2" points="487.66 246.6 246.24 5.54 5 5.71 5.17 246.95 246.59 488.02 487.83 487.84 487.66 246.6"/>
+    </g>
+    <g id="_Radial_Repeat_-3" data-name="&amp;lt;Radial Repeat&amp;gt;">
+      <polygon class="cls-2" points="753.4 487.65 994.46 246.24 994.29 5 753.05 5.17 511.98 246.59 512.15 487.83 753.4 487.65"/>
+    </g>
+    <g id="_Radial_Repeat_-4" data-name="&amp;lt;Radial Repeat&amp;gt;">
+      <polygon class="cls-2" points="512.34 753.39 753.76 994.46 995 994.29 994.83 753.05 753.41 511.98 512.17 512.15 512.34 753.39"/>
+    </g>
+  </g>
+  <path class="cls-1" d="M638.41,361.21h0c142.14,0,257.38-115.23,257.38-257.38h0s0,0,0,0c-142.14,0-257.38,115.23-257.38,257.38h0Z"/>
+  <path class="cls-1" d="M895.79,895.4h0c-142.14,0-257.38-115.23-257.38-257.38h0s0,0,0,0c142.14,0,257.38,115.23,257.38,257.38h0Z"/>
+  <path class="cls-1" d="M360.01,361.21h0c-142.14,0-257.38-115.23-257.38-257.38h0s0,0,0,0c142.14,0,257.38,115.23,257.38,257.38h0Z"/>
+  <path class="cls-1" d="M102.63,895.4h0c142.14,0,257.38-115.23,257.38-257.38h0s0,0,0,0c-142.14,0-257.38,115.23-257.38,257.38h0Z"/>
+</svg>
