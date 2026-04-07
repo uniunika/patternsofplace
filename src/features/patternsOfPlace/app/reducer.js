@@ -60,7 +60,7 @@ export const makeRing = (index = 0) => ({
 });
 
 export const makeCluster = (tpl) => {
-  const rings = [0, 1, 2].map((i) => makeRing(i));
+  const rings = [0].map((i) => makeRing(i));
   return {
     id: makeId(),
     x: tpl.x,
