@@ -25,6 +25,7 @@ import { SliderControl } from "../shared/SliderControl.jsx";
 import { ColorPicker } from "../shared/ColorPicker.jsx";
 import { PatternTile } from "../shared/PatternTile.jsx";
 import { MOTIFS, MOTIF_NAMES } from "../../data/motifs/motifRegistry.js";
+import { PREVIEW_BG_OPTIONS } from "../../data/constants/backgrounds.js";
 import { FONT, FONT_MONO } from "../../data/constants/themes.js";
 
 const PANEL_STYLE = {
@@ -51,17 +52,6 @@ export function StagePatternLab() {
   const [previewBgColor, setPreviewBgColor] = useState("#101010");
   const [copiedColors, setCopiedColors] = useState(null);
   const [copyMsg, setCopyMsg] = useState("");
-
-  const previewBgOptions = [
-    { name: "Ink", color: "#101010" },
-    { name: "Charcoal", color: "#1b1b1b" },
-    { name: "Paper", color: "#f2e9d8" },
-    { name: "Sand", color: "#d8c7a6" },
-    { name: "Night Blue", color: "#0d1b2a" },
-    { name: "Forest", color: "#10261b" },
-    { name: "Wine", color: "#2b1020" },
-    { name: "Stone", color: "#6d6a66" },
-  ];
 
   const upd = useCallback(
     (key, value) => {
@@ -627,7 +617,7 @@ export function StagePatternLab() {
             Preview Background
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {previewBgOptions.map((option) => {
+            {PREVIEW_BG_OPTIONS.map((option) => {
               const isActive = previewBgColor === option.color;
               return (
                 <button

@@ -41,32 +41,34 @@ function buildFrontSVG(clusters, bgColor, library, W, H) {
         const cx = ox + x,
           cy = oy + y;
         if (preset) {
+          const tileX = cx - tileSize / 2;
+          const tileY = cy - tileSize / 2;
+          const half = tileSize / 2;
           preset.layers.forEach((layer) => {
-            const half = tileSize / 2;
             const sz = Math.max(
               4,
               Math.round(tileSize * 0.5 * layer.scale * presetFit),
             );
-            const lx =
-              cx - tileSize / 2 + (half + layer.x * half * presetFit) - sz / 2;
-            const ly =
-              cy - tileSize / 2 + (half + layer.y * half * presetFit) - sz / 2;
+            const lx = half + layer.x * half * presetFit - sz / 2;
+            const ly = half + layer.y * half * presetFit - sz / 2;
             const [la, lb, lc, ld, le] = layer.colors;
+            const sc1000 = (sz / 1000).toFixed(6);
             parts.push(
-              `<g transform="translate(${lx.toFixed(2)},${ly.toFixed(2)}) rotate(${(angle + layer.rotation).toFixed(2)},${(sz / 2).toFixed(2)},${(sz / 2).toFixed(2)})"><svg width="${sz}" height="${sz}" viewBox="0 0 1000 1000">${getInlineSVG(layer.motifId, la, lb, lc, ld, le)}</svg></g>`,
+              `<g transform="translate(${tileX.toFixed(2)},${tileY.toFixed(2)}) rotate(${angle.toFixed(2)},${half.toFixed(2)},${half.toFixed(2)})"><g transform="translate(${lx.toFixed(2)},${ly.toFixed(2)}) rotate(${layer.rotation.toFixed(2)},${(sz / 2).toFixed(2)},${(sz / 2).toFixed(2)}) scale(${sc1000})">${getInlineSVG(layer.motifId, la, lb, lc, ld, le)}</g></g>`,
             );
           });
         } else if (r.motifId !== undefined) {
           const [ra, rb, rc, rd, re] = r.colors ?? DEFAULT_COLORS;
+          const sc1000 = (tileSize / 1000).toFixed(6);
           parts.push(
-            `<g transform="translate(${(cx - tileSize / 2).toFixed(2)},${(cy - tileSize / 2).toFixed(2)}) rotate(${angle.toFixed(2)},${(tileSize / 2).toFixed(2)},${(tileSize / 2).toFixed(2)})"><svg width="${tileSize}" height="${tileSize}" viewBox="0 0 1000 1000">${getInlineSVG(r.motifId, ra, rb, rc, rd, re)}</svg></g>`,
+            `<g transform="translate(${(cx - tileSize / 2).toFixed(2)},${(cy - tileSize / 2).toFixed(2)}) rotate(${angle.toFixed(2)},${(tileSize / 2).toFixed(2)},${(tileSize / 2).toFixed(2)}) scale(${sc1000})">${getInlineSVG(r.motifId, ra, rb, rc, rd, re)}</g>`,
           );
         }
       }
     });
   });
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${bgColor}"/>${parts.join("")}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${bgColor}"/><rect x="10" y="10" width="${W - 20}" height="${H - 20}" rx="4" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>${parts.join("")}</svg>`;
 }
 
 // ─── Reverse SVG builder ──────────────────────────────────────────────────────
@@ -224,25 +226,27 @@ function buildReverseSVG(
         cy = oy + y;
 
       if (preset) {
+        const tileX = cx - tileSize / 2;
+        const tileY = cy - tileSize / 2;
+        const half = tileSize / 2;
         preset.layers.forEach((layer) => {
-          const half = tileSize / 2;
           const sz = Math.max(
             4,
             Math.round(tileSize * 0.5 * layer.scale * presetFit),
           );
-          const lx =
-            cx - tileSize / 2 + (half + layer.x * half * presetFit) - sz / 2;
-          const ly =
-            cy - tileSize / 2 + (half + layer.y * half * presetFit) - sz / 2;
+          const lx = half + layer.x * half * presetFit - sz / 2;
+          const ly = half + layer.y * half * presetFit - sz / 2;
           const [la, lb, lc, ld, le] = layer.colors;
+          const sc1000 = (sz / 1000).toFixed(6);
           parts.push(
-            `<g transform="translate(${lx.toFixed(2)},${ly.toFixed(2)}) rotate(${(angle + layer.rotation).toFixed(2)},${(sz / 2).toFixed(2)},${(sz / 2).toFixed(2)})"><svg width="${sz}" height="${sz}" viewBox="0 0 1000 1000">${getInlineSVG(layer.motifId, la, lb, lc, ld, le)}</svg></g>`,
+            `<g transform="translate(${tileX.toFixed(2)},${tileY.toFixed(2)}) rotate(${angle.toFixed(2)},${half.toFixed(2)},${half.toFixed(2)})"><g transform="translate(${lx.toFixed(2)},${ly.toFixed(2)}) rotate(${layer.rotation.toFixed(2)},${(sz / 2).toFixed(2)},${(sz / 2).toFixed(2)}) scale(${sc1000})">${getInlineSVG(layer.motifId, la, lb, lc, ld, le)}</g></g>`,
           );
         });
       } else if (ring.motifId !== undefined) {
         const [ra, rb, rc, rd, re] = ring.colors ?? DEFAULT_COLORS;
+        const sc1000 = (tileSize / 1000).toFixed(6);
         parts.push(
-          `<g transform="translate(${(cx - tileSize / 2).toFixed(2)},${(cy - tileSize / 2).toFixed(2)}) rotate(${angle.toFixed(2)},${(tileSize / 2).toFixed(2)},${(tileSize / 2).toFixed(2)})"><svg width="${tileSize}" height="${tileSize}" viewBox="0 0 1000 1000">${getInlineSVG(ring.motifId, ra, rb, rc, rd, re)}</svg></g>`,
+          `<g transform="translate(${(cx - tileSize / 2).toFixed(2)},${(cy - tileSize / 2).toFixed(2)}) rotate(${angle.toFixed(2)},${(tileSize / 2).toFixed(2)},${(tileSize / 2).toFixed(2)}) scale(${sc1000})">${getInlineSVG(ring.motifId, ra, rb, rc, rd, re)}</g>`,
         );
       }
     }

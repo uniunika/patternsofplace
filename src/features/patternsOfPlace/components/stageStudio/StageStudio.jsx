@@ -30,7 +30,7 @@ import { ColorPicker } from "../shared/ColorPicker.jsx";
 import { CardCanvas } from "../shared/CardCanvas.jsx";
 import { PatternTile } from "../shared/PatternTile.jsx";
 import { MOTIFS, MOTIF_NAMES } from "../../data/motifs/motifRegistry.js";
-import { BG_DARK, BG_LIGHT } from "../../data/constants/backgrounds.js";
+import { PREVIEW_BG_OPTIONS } from "../../data/constants/backgrounds.js";
 import {
   DEFAULT_COLORS,
   MAX_RINGS_PER_CLUSTER,
@@ -483,75 +483,100 @@ export function StageStudio() {
 
         {/* ── Background ── */}
         <Label T={T}>Card Background</Label>
-        <div style={{ marginBottom: 6 }}>
-          <div style={{ fontSize: 9, color: T.mut, marginBottom: 4 }}>Dark</div>
-          <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
-            {BG_DARK.map((bg) => (
-              <button
-                key={bg}
-                onClick={() => dispatch({ type: SET_BG_COLOR, color: bg })}
-                aria-label={`Background ${bg}`}
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 4,
-                  background: bg,
-                  cursor: "pointer",
-                  border: `2px solid ${bgColor === bg ? T.gold : T.brd}`,
-                  transition: "border 0.15s",
-                }}
-              />
-            ))}
-          </div>
-          <div style={{ fontSize: 9, color: T.mut, marginBottom: 4 }}>
-            Light
-          </div>
-          <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-            {BG_LIGHT.map((bg) => (
-              <button
-                key={bg}
-                onClick={() => dispatch({ type: SET_BG_COLOR, color: bg })}
-                aria-label={`Background ${bg}`}
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 4,
-                  background: bg,
-                  cursor: "pointer",
-                  border: `2px solid ${bgColor === bg ? T.gold : T.brd}`,
-                  transition: "border 0.15s",
-                }}
-              />
-            ))}
-          </div>
-        </div>
         <div
           style={{
+            marginTop: 4,
             display: "flex",
+            flexDirection: "column",
             gap: 8,
-            alignItems: "center",
-            marginBottom: 12,
           }}
         >
-          <input
-            type="color"
-            value={bgColor}
-            onChange={(e) =>
-              dispatch({ type: SET_BG_COLOR, color: e.target.value })
-            }
+          <div style={{ fontSize: 10, fontWeight: 700, color: T.mut }}>
+            Preview Background
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {PREVIEW_BG_OPTIONS.map((option) => {
+              const isActive = bgColor === option.color;
+              return (
+                <button
+                  key={option.color}
+                  type="button"
+                  onClick={() =>
+                    dispatch({ type: SET_BG_COLOR, color: option.color })
+                  }
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "4px 6px",
+                    borderRadius: 999,
+                    border: `1px solid ${isActive ? T.gold : T.brd}`,
+                    background: isActive ? T.surf2 : "transparent",
+                    color: isActive ? T.gold : T.mut,
+                    cursor: "pointer",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      background: option.color,
+                      border: "1px solid rgba(255,255,255,0.2)",
+                    }}
+                  />
+                  <span
+                    style={{ fontSize: 10, fontFamily: FONT, fontWeight: 700 }}
+                  >
+                    {option.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div
             style={{
-              width: 32,
-              height: 32,
-              border: `1px solid ${T.brd}`,
-              borderRadius: 4,
-              cursor: "pointer",
-              padding: 2,
-              background: "transparent",
+              display: "grid",
+              gridTemplateColumns: "1fr auto",
+              gap: 8,
+              alignItems: "center",
             }}
-          />
-          <span style={{ fontSize: 10, color: T.mut, fontFamily: FONT_MONO }}>
-            {bgColor}
-          </span>
+          >
+            <input
+              type="color"
+              value={bgColor}
+              onChange={(e) =>
+                dispatch({ type: SET_BG_COLOR, color: e.target.value })
+              }
+              aria-label="Card background color"
+              style={{
+                width: "100%",
+                height: 30,
+                border: `1px solid ${T.brd}`,
+                borderRadius: 6,
+                cursor: "pointer",
+                padding: 2,
+                background: "transparent",
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => dispatch({ type: SET_BG_COLOR, color: "#101010" })}
+              style={{
+                padding: "7px 10px",
+                fontSize: 10,
+                fontFamily: FONT,
+                fontWeight: 700,
+                borderRadius: 6,
+                border: `1px solid ${T.brd}`,
+                background: T.surf2,
+                color: T.txt,
+                cursor: "pointer",
+              }}
+            >
+              Reset
+            </button>
+          </div>
         </div>
 
         <Button onClick={finalize} T={T}>
