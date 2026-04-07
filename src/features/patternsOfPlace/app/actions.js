@@ -15,6 +15,8 @@ export const SET_ACTIVE_LAYER = "SET_ACTIVE_LAYER";
 // ─── Preset library ───────────────────────────────────────────────────────────
 export const SAVE_PRESET = "SAVE_PRESET";
 export const DELETE_PRESET = "DELETE_PRESET";
+export const LOAD_PRESET = "LOAD_PRESET";
+export const UPDATE_PRESET = "UPDATE_PRESET";
 
 // ─── Template + Studio clusters ───────────────────────────────────────────────
 export const SELECT_TEMPLATE = "SELECT_TEMPLATE";

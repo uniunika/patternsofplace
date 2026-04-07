@@ -17,24 +17,32 @@ export function triggerDownload(href, filename) {
  */
 export function svgStringToCanvas(svgStr, W, H, bgColor) {
   return new Promise((resolve) => {
-    const blob = new Blob([svgStr], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
     const img = new Image();
+
+    // Use data URI with proper dimensions to ensure consistent rendering
+    const dataUri =
+      "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
+
     img.onload = () => {
+      // Create canvas at intrinsic size to avoid quality loss
+      const dpr = window.devicePixelRatio || 1;
       const cv = document.createElement("canvas");
-      cv.width = W;
-      cv.height = H;
+      cv.width = W * dpr;
+      cv.height = H * dpr;
+      cv.style.width = W + "px";
+      cv.style.height = H + "px";
+
       const ctx = cv.getContext("2d");
+      // Scale context for high DPI rendering
+      ctx.scale(dpr, dpr);
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, W, H);
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(url);
+      ctx.drawImage(img, 0, 0, W, H);
       resolve(cv);
     };
     img.onerror = () => {
-      URL.revokeObjectURL(url);
       resolve(null);
     };
-    img.src = url;
+    img.src = dataUri;
   });
 }

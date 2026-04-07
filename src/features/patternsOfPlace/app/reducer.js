@@ -11,6 +11,8 @@ import {
   SET_ACTIVE_LAYER,
   SAVE_PRESET,
   DELETE_PRESET,
+  LOAD_PRESET,
+  UPDATE_PRESET,
   SELECT_TEMPLATE,
   ADD_CLUSTER,
   REMOVE_CLUSTER,
@@ -29,7 +31,11 @@ import {
   SET_EXPORT_STATUS,
 } from "./actions.js";
 import { makeId } from "../utils/id.js";
-import { DEFAULT_COLORS, DEFAULT_BG_COLOR } from "../data/constants/defaults.js";
+import {
+  DEFAULT_COLORS,
+  DEFAULT_BG_COLOR,
+  MAX_RINGS_PER_CLUSTER,
+} from "../data/constants/defaults.js";
 import { REVERSE_TEMPLATES } from "../data/constants/templates.js";
 
 // ─── Factories ────────────────────────────────────────────────────────────────
@@ -91,6 +97,7 @@ export const initialState = {
     activeRingId: null,
     activeLayerId: firstLayer.id,
     activeReverseDecorationId: null,
+    activePresetId: null,
     ringSetupMode: "motif",
     previewSide: "front",
   },
@@ -183,6 +190,33 @@ export function reducer(state, action) {
         ...state,
         library: state.library.filter((p) => p.id !== action.id),
       };
+
+    case LOAD_PRESET: {
+      const preset = state.library.find((p) => p.id === action.id);
+      if (!preset) return state;
+      const layers = preset.layers.map((l) => ({ ...l }));
+      return {
+        ...state,
+        editor: { ...state.editor, layers },
+        ui: {
+          ...state.ui,
+          activeLayerId: layers[0]?.id,
+          activePresetId: action.id,
+        },
+      };
+    }
+
+    case UPDATE_PRESET: {
+      return {
+        ...state,
+        library: state.library.map((p) =>
+          p.id === action.id
+            ? { ...p, layers: state.editor.layers.map((l) => ({ ...l })) }
+            : p,
+        ),
+        ui: { ...state.ui, activePresetId: null },
+      };
+    }
 
     // Template selection → initializes clusters + advances to Studio stage
     case SELECT_TEMPLATE: {
@@ -364,9 +398,9 @@ export function reducer(state, action) {
       };
 
     case SET_REVERSE_TEMPLATE: {
-      const template = REVERSE_TEMPLATES.find(t => t.id === action.id);
+      const template = REVERSE_TEMPLATES.find((t) => t.id === action.id);
       if (!template) return state;
-      const rings = template.rings.map(r => ({ ...r, id: makeId() }));
+      const rings = template.rings.map((r) => ({ ...r, id: makeId() }));
       return {
         ...state,
         editor: {
@@ -374,7 +408,10 @@ export function reducer(state, action) {
           reverseDecorations: rings,
           reverseTemplate: action.id,
         },
-        ui: { ...state.ui, activeReverseDecorationId: rings.length > 0 ? rings[0].id : null },
+        ui: {
+          ...state.ui,
+          activeReverseDecorationId: rings.length > 0 ? rings[0].id : null,
+        },
       };
     }
 
