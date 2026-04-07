@@ -17,7 +17,7 @@ export const PatternTile = memo(function PatternTile({ layers, size }) {
       }}
     >
       {layers.map((layer) => {
-        const MC = MOTIFS[layer.motifId];
+        const MC = MOTIFS[layer.motifId] || MOTIFS[0];
         const sz = Math.max(4, Math.round(size * 0.5 * layer.scale));
         const cx = half + layer.x * half;
         const cy = half + layer.y * half;

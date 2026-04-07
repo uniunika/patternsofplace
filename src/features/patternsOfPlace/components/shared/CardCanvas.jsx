@@ -64,7 +64,7 @@ export const CardCanvas = memo(function CardCanvas({
               const rs = r.radius * s;
               const tileSize = Math.max(5, tangentSize(rs, r.count));
               const isActiveR = isActiveCl && r.id === activeRingId;
-              const MC = MOTIFS[r.motifId ?? 0];
+              const MC = MOTIFS[r.motifId ?? 0] || MOTIFS[0];
 
               return (
                 <div key={r.id}>

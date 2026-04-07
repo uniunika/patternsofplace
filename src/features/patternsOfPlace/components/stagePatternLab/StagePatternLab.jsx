@@ -5,6 +5,7 @@ import {
   SET_THEME,
   ADD_LAYER,
   REMOVE_LAYER,
+  DUPLICATE_LAYER,
   UPDATE_LAYER,
   SET_ACTIVE_LAYER,
   SAVE_PRESET,
@@ -47,6 +48,8 @@ export function StagePatternLab() {
   const [presetName, setPresetName] = useState("");
   const [savedMsg, setSavedMsg] = useState("");
   const [colorMode, setColorMode] = useState("harmony"); // "harmony" | "manual"
+  const [copiedColors, setCopiedColors] = useState(null);
+  const [copyMsg, setCopyMsg] = useState("");
 
   const upd = useCallback(
     (key, value) => {
@@ -57,6 +60,16 @@ export function StagePatternLab() {
 
   const addLayer = () => dispatch({ type: ADD_LAYER });
   const removeLayer = () => dispatch({ type: REMOVE_LAYER, id: activeLayerId });
+  const duplicateLayer = () =>
+    dispatch({ type: DUPLICATE_LAYER, id: activeLayerId });
+  const copyLayerColors = () => {
+    setCopiedColors(active.colors);
+    setCopyMsg("Copied");
+    setTimeout(() => setCopyMsg(""), 2000);
+  };
+  const pasteLayerColors = () => {
+    if (copiedColors) upd("colors", copiedColors);
+  };
 
   const savePreset = () => {
     if (!presetName.trim()) return;
@@ -127,9 +140,18 @@ export function StagePatternLab() {
           }}
         >
           <Label T={T}>Layers ({layers.length})</Label>
-          <div style={{ display: "flex", gap: 3 }}>
+          <div style={{ display: "flex", gap: 3, flexWrap: "wrap", alignItems: "center" }}>
             <Button small variant="ghost" T={T} onClick={addLayer}>
               +
+            </Button>
+            <Button
+              small
+              variant="ghost"
+              T={T}
+              onClick={duplicateLayer}
+              disabled={!active}
+            >
+              ⧉
             </Button>
             <Button
               small
@@ -142,6 +164,31 @@ export function StagePatternLab() {
             </Button>
           </div>
         </div>
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
+          <Button
+            small
+            variant="ghost"
+            T={T}
+            onClick={copyLayerColors}
+            disabled={!active}
+          >
+            Copy colors
+          </Button>
+          <Button
+            small
+            variant="ghost"
+            T={T}
+            onClick={pasteLayerColors}
+            disabled={!copiedColors}
+          >
+            Paste colors
+          </Button>
+          {copyMsg && (
+            <span style={{ fontSize: 10, color: T.gold, alignSelf: "center" }}>
+              {copyMsg}
+            </span>
+          )}
+        </div>
 
         <div
           style={{
@@ -152,7 +199,7 @@ export function StagePatternLab() {
           }}
         >
           {layers.map((l, i) => {
-            const MC = MOTIFS[l.motifId];
+            const MC = MOTIFS[l.motifId] || MOTIFS[0];
             const isActive = l.id === activeLayerId;
             return (
               <button

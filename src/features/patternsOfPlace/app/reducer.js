@@ -6,6 +6,7 @@ import {
   RESET,
   ADD_LAYER,
   REMOVE_LAYER,
+  DUPLICATE_LAYER,
   UPDATE_LAYER,
   SET_ACTIVE_LAYER,
   SAVE_PRESET,
@@ -24,15 +25,12 @@ import {
   REMOVE_REVERSE_DECORATION,
   UPDATE_REVERSE_DECORATION,
   SET_ACTIVE_REVERSE_DECORATION,
+  SET_REVERSE_TEMPLATE,
   SET_EXPORT_STATUS,
 } from "./actions.js";
 import { makeId } from "../utils/id.js";
-import {
-  DEFAULT_COLORS,
-  DEFAULT_BG_COLOR,
-  DEFAULT_THEME,
-  MAX_RINGS_PER_CLUSTER,
-} from "../data/constants/defaults.js";
+import { DEFAULT_COLORS, DEFAULT_BG_COLOR } from "../data/constants/defaults.js";
+import { REVERSE_TEMPLATES } from "../data/constants/templates.js";
 
 // ─── Factories ────────────────────────────────────────────────────────────────
 
@@ -88,7 +86,7 @@ const firstLayer = makeLayer(0);
 export const initialState = {
   ui: {
     stage: 0,
-    theme: DEFAULT_THEME,
+    theme: "dark",
     activeClusterId: null,
     activeRingId: null,
     activeLayerId: firstLayer.id,
@@ -103,6 +101,7 @@ export const initialState = {
     clusters: [],
     bgColor: DEFAULT_BG_COLOR,
     reverseDecorations: [],
+    reverseTemplate: "default",
   },
   export: {
     isDownloading: false,
@@ -140,6 +139,21 @@ export function reducer(state, action) {
         ...state,
         editor: { ...state.editor, layers: remaining },
         ui: { ...state.ui, activeLayerId: remaining[remaining.length - 1].id },
+      };
+    }
+    case DUPLICATE_LAYER: {
+      const original = state.editor.layers.find((l) => l.id === action.id);
+      if (!original) return state;
+      const clone = { ...original, id: makeId(), colors: [...original.colors] };
+      const layers = state.editor.layers.reduce((acc, layer) => {
+        acc.push(layer);
+        if (layer.id === action.id) acc.push(clone);
+        return acc;
+      }, []);
+      return {
+        ...state,
+        editor: { ...state.editor, layers },
+        ui: { ...state.ui, activeLayerId: clone.id },
       };
     }
     case UPDATE_LAYER:
@@ -348,6 +362,21 @@ export function reducer(state, action) {
         ...state,
         ui: { ...state.ui, activeReverseDecorationId: action.id },
       };
+
+    case SET_REVERSE_TEMPLATE: {
+      const template = REVERSE_TEMPLATES.find(t => t.id === action.id);
+      if (!template) return state;
+      const rings = template.rings.map(r => ({ ...r, id: makeId() }));
+      return {
+        ...state,
+        editor: {
+          ...state.editor,
+          reverseDecorations: rings,
+          reverseTemplate: action.id,
+        },
+        ui: { ...state.ui, activeReverseDecorationId: rings.length > 0 ? rings[0].id : null },
+      };
+    }
 
     // Export
     case SET_EXPORT_STATUS:

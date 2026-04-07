@@ -38,6 +38,7 @@ export const selectActiveReverseDecoration = s => {
   const { reverseDecorations } = s.editor;
   return reverseDecorations.find(d => d.id === activeReverseDecorationId) ?? null;
 };
+export const selectReverseTemplate = s => s.editor.reverseTemplate;
 
 // ─── Export ───────────────────────────────────────────────────────────────────
 export const selectExport = s => s.export;

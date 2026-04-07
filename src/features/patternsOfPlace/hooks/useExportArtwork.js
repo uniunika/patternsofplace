@@ -54,7 +54,7 @@ function buildFrontSVG(clusters, bgColor, library, W, H) {
 
 // ─── Reverse SVG builder ──────────────────────────────────────────────────────
 
-function buildReverseSVG(reverseRings, bgColor, library, T, W, H) {
+function buildReverseSVG(reverseRings, bgColor, library, T, W, H, template = "default") {
   const sc = H / 480;          // ring scale — same reference as preview
   const layoutSc = H / 440;    // layout scale — matches preview canvas height
   const pad = Math.round(H * 0.08);
@@ -71,17 +71,40 @@ function buildReverseSVG(reverseRings, bgColor, library, T, W, H) {
   const brd = T.brd;
   const mut = T.mut;
   const dim = T.dim;
+  const txt = T.txt;
+  const gold = T.gold;
 
   const parts = [];
 
   // Background
   parts.push(`<rect width="${W}" height="${H}" fill="${bgColor}"/>`);
 
-  // Outer border (matches the 1px CSS border on the preview)
-  parts.push(`<rect x="1" y="1" width="${W - 2}" height="${H - 2}" fill="none" stroke="${brd}" stroke-width="2" rx="8"/>`);
+  if (template === "luxury") {
+    // Luxury template: split layout with decorative left, writing right
+    const borderColor = "#C9A646";
+    parts.push(`<rect x="2" y="2" width="${W - 4}" height="${H - 4}" fill="none" stroke="${borderColor}" stroke-width="4" rx="8"/>`);
+    parts.push(`<line x1="${W / 2}" y1="0" x2="${W / 2}" y2="${H}" stroke="${borderColor}" stroke-width="2"/>`);
 
-  // Vertical divider between note area and address area
-  parts.push(`<line x1="${leftW}" y1="0" x2="${leftW}" y2="${H}" stroke="${brd}" stroke-width="2"/>`);
+    // Right: Writing area
+    const rightX = W / 2;
+    const labelY = pad + fsLabel + Math.round(8 * layoutSc);
+    parts.push(`<text x="${rightX + pad}" y="${labelY}" font-family="${font}" font-size="${fsLabel}" font-weight="600" letter-spacing="${Math.round(fsLabel * 0.1)}" fill="${gold}">Patterns of Place</text>`);
+    parts.push(`<line x1="${rightX + pad}" y1="${labelY + Math.round(8 * layoutSc)}" x2="${rightX + W / 2 - pad}" y2="${labelY + Math.round(8 * layoutSc)}" stroke="${gold}" stroke-width="1"/>`);
+
+    const toY = labelY + Math.round(20 * layoutSc);
+    parts.push(`<text x="${rightX + pad}" y="${toY}" font-family="${font}" font-size="${fsTiny}" text-transform="uppercase" letter-spacing="${Math.round(fsTiny * 0.1)}" fill="${gold}">To:</text>`);
+    for (let i = 0; i < 4; i++) {
+      const ly = toY + Math.round((i + 1) * 12 * layoutSc);
+      parts.push(`<line x1="${rightX + pad}" y1="${ly}" x2="${rightX + W / 2 - pad}" y2="${ly}" stroke="${brd}" stroke-width="1"/>`);
+    }
+
+    const fromY = toY + Math.round(20 * layoutSc) + Math.round(48 * layoutSc);
+    parts.push(`<text x="${rightX + pad}" y="${fromY}" font-family="${font}" font-size="${fsTiny}" text-transform="uppercase" letter-spacing="${Math.round(fsTiny * 0.1)}" fill="${gold}">From:</text>`);
+    for (let i = 0; i < 2; i++) {
+      const ly = fromY + Math.round((i + 1) * 12 * layoutSc);
+      parts.push(`<line x1="${rightX + pad}" y1="${ly}" x2="${rightX + W / 2 - pad}" y2="${ly}" stroke="${brd}" stroke-width="1"/>`);
+    }
+  } else {
 
   // ── Note area ──
   const noteLabelY = pad + fsLabel;
@@ -124,6 +147,7 @@ function buildReverseSVG(reverseRings, bgColor, library, T, W, H) {
     const ly = toLabelY + Math.round(addrGap * (i + 1));
     parts.push(`<line x1="${rightX + padRight}" y1="${ly}" x2="${rightX + padRight + addrAreaW * w}" y2="${ly}" stroke="${brd}" stroke-width="1.5"/>`);
   });
+  }
 
   // ── Reverse rings ──
   reverseRings.forEach(ring => {
@@ -166,7 +190,7 @@ const EXPORT_H = 1200;
  * Returns download actions that always export both front and reverse.
  * Requires clusters/library for the front and reverseRings/T for the reverse.
  */
-export function useExportArtwork({ clusters, bgColor, library, reverseRings = [], T }) {
+export function useExportArtwork({ clusters, bgColor, library, reverseRings = [], T, template = "default" }) {
   const downloadSVG = useCallback(() => {
     const frontSvg = buildFrontSVG(clusters, bgColor, library, EXPORT_W, EXPORT_H);
     const frontBlob = new Blob([frontSvg], { type: "image/svg+xml" });
@@ -176,30 +200,30 @@ export function useExportArtwork({ clusters, bgColor, library, reverseRings = []
 
     // Small delay so the browser doesn't block the second download
     setTimeout(() => {
-      const reverseSvg = buildReverseSVG(reverseRings, bgColor, library, T, EXPORT_W, EXPORT_H);
+      const reverseSvg = buildReverseSVG(reverseRings, bgColor, library, T, EXPORT_W, EXPORT_H, template);
       const reverseBlob = new Blob([reverseSvg], { type: "image/svg+xml" });
       const reverseUrl = URL.createObjectURL(reverseBlob);
       triggerDownload(reverseUrl, "patterns-of-place-reverse.svg");
       URL.revokeObjectURL(reverseUrl);
     }, 400);
-  }, [clusters, bgColor, library, reverseRings, T]);
+  }, [clusters, bgColor, library, reverseRings, T, template]);
 
   const downloadJPEG = useCallback(async () => {
     // Front
     const frontSvg = buildFrontSVG(clusters, bgColor, library, EXPORT_W, EXPORT_H);
     const frontCanvas = await svgStringToCanvas(frontSvg, EXPORT_W, EXPORT_H, bgColor);
     if (!frontCanvas) throw new Error("Front canvas render failed");
-    triggerDownload(frontCanvas.toDataURL("image/jpeg", 0.95), "patterns-of-place-front.jpg");
+    triggerDownload(frontCanvas.toDataURL("image/png", 0.95), "patterns-of-place-front.png");
 
     // Give the browser a moment before triggering the second download
     await new Promise(r => setTimeout(r, 400));
 
     // Reverse
-    const reverseSvg = buildReverseSVG(reverseRings, bgColor, library, T, EXPORT_W, EXPORT_H);
+    const reverseSvg = buildReverseSVG(reverseRings, bgColor, library, T, EXPORT_W, EXPORT_H, template);
     const reverseCanvas = await svgStringToCanvas(reverseSvg, EXPORT_W, EXPORT_H, bgColor);
     if (!reverseCanvas) throw new Error("Reverse canvas render failed");
-    triggerDownload(reverseCanvas.toDataURL("image/jpeg", 0.95), "patterns-of-place-reverse.jpg");
-  }, [clusters, bgColor, library, reverseRings, T]);
+    triggerDownload(reverseCanvas.toDataURL("image/png", 0.95), "patterns-of-place-reverse.png");
+  }, [clusters, bgColor, library, reverseRings, T, template]);
 
   return { downloadJPEG, downloadSVG };
 }

@@ -8,6 +8,7 @@ export function triggerDownload(href, filename) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(href), 1000);
 }
 
 /**

@@ -8,6 +8,7 @@ export const RESET = "RESET";
 // ─── Pattern Lab layers ───────────────────────────────────────────────────────
 export const ADD_LAYER = "ADD_LAYER";
 export const REMOVE_LAYER = "REMOVE_LAYER";
+export const DUPLICATE_LAYER = "DUPLICATE_LAYER";
 export const UPDATE_LAYER = "UPDATE_LAYER";
 export const SET_ACTIVE_LAYER = "SET_ACTIVE_LAYER";
 
@@ -36,6 +37,7 @@ export const ADD_REVERSE_DECORATION = "ADD_REVERSE_DECORATION";
 export const REMOVE_REVERSE_DECORATION = "REMOVE_REVERSE_DECORATION";
 export const UPDATE_REVERSE_DECORATION = "UPDATE_REVERSE_DECORATION";
 export const SET_ACTIVE_REVERSE_DECORATION = "SET_ACTIVE_REVERSE_DECORATION";
+export const SET_REVERSE_TEMPLATE = "SET_REVERSE_TEMPLATE";
 
 // ─── Export status ────────────────────────────────────────────────────────────
 export const SET_EXPORT_STATUS = "SET_EXPORT_STATUS";

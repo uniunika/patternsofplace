@@ -447,6 +447,26 @@ export function ColorPicker({ label, colors, onChange, T }) {
               />
             ))}
           </div>
+          <div style={{ marginTop: 10 }}>
+            <button
+              type="button"
+              onClick={() => onChange(buildPalette(currentColors[0] ?? "#3a2417", mode))}
+              style={{
+                width: "100%",
+                padding: "8px 10px",
+                fontSize: 11,
+                fontFamily: FONT,
+                fontWeight: 700,
+                color: T.txt,
+                background: T.surf2,
+                border: `1px solid ${T.brd}`,
+                borderRadius: 6,
+                cursor: "pointer",
+              }}
+            >
+              Create palette from base color
+            </button>
+          </div>
         </div>
       </div>
     </div>

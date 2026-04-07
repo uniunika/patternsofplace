@@ -6,3 +6,16 @@ export const TEMPLATES = [
   { id: "frame", name: "Frame", clusters: [{ x: 0.5, y: 0.5, scale: 1 }, { x: 0.13, y: 0.5, scale: 0.4 }, { x: 0.87, y: 0.5, scale: 0.4 }, { x: 0.5, y: 0.18, scale: 0.4 }, { x: 0.5, y: 0.82, scale: 0.4 }] },
   { id: "custom", name: "Custom", clusters: [{ x: 0.5, y: 0.5, scale: 1 }] },
 ];
+
+export const REVERSE_TEMPLATES = [
+  { id: "default", name: "Default", rings: [] },
+  {
+    id: "luxury",
+    name: "Luxury",
+    rings: [
+      { x: 0.15, y: 0.15, count: 8, radius: 60, motifId: 0, colors: ["#C9A646", "#9d5036", "#C9A646", "#9d5036", "#C9A646"] },
+      { x: 0.25, y: 0.25, count: 6, radius: 40, motifId: 1, colors: ["#C9A646", "#9d5036", "#C9A646", "#9d5036", "#C9A646"] },
+      { x: 0.35, y: 0.35, count: 5, radius: 30, motifId: 2, colors: ["#C9A646", "#9d5036", "#C9A646", "#9d5036", "#C9A646"] },
+    ],
+  },
+];

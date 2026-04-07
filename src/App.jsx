@@ -7,7 +7,7 @@ const PatternsOfPlacePage = lazy(
 
 function App() {
   const patternsElement = (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '24px' }}>Loading Patterns of Place...</div>}>
       <PatternsOfPlacePage />
     </Suspense>
   );

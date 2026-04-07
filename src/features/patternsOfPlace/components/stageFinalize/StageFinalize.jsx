@@ -10,6 +10,7 @@ import {
   REMOVE_REVERSE_DECORATION,
   UPDATE_REVERSE_DECORATION,
   SET_ACTIVE_REVERSE_DECORATION,
+  SET_REVERSE_TEMPLATE,
 } from "../../app/actions.js";
 import {
   selectClusters,
@@ -19,6 +20,7 @@ import {
   selectExport,
   selectReverseDecorations,
   selectActiveReverseDecoration,
+  selectReverseTemplate,
 } from "../../app/selectors.js";
 import { Button } from "../shared/Button.jsx";
 import { Divider } from "../shared/Divider.jsx";
@@ -31,6 +33,7 @@ import { PostcardReverse } from "./PostcardReverse.jsx";
 import { useExportArtwork } from "../../hooks/useExportArtwork.js";
 import { MOTIFS, MOTIF_NAMES } from "../../data/motifs/motifRegistry.js";
 import { DEFAULT_COLORS } from "../../data/constants/defaults.js";
+import { REVERSE_TEMPLATES } from "../../data/constants/templates.js";
 import { tangentSize } from "../../domain/geometry.js";
 import { FONT, FONT_MONO } from "../../data/constants/themes.js";
 
@@ -50,6 +53,7 @@ function ReversePanel({ T, state, dispatch }) {
   const rings = selectReverseDecorations(state);
   const active = selectActiveReverseDecoration(state);
   const library = selectLibrary(state);
+  const reverseTemplate = selectReverseTemplate(state);
   const { activeReverseDecorationId } = state.ui;
   const [setupMode, setSetupMode] = useState("motif");
 
@@ -96,6 +100,23 @@ function ReversePanel({ T, state, dispatch }) {
         </div>
       </div>
 
+      <Divider T={T} />
+
+      <Label T={T}>Reverse Template</Label>
+      <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 10 }}>
+        {REVERSE_TEMPLATES.map((tpl) => (
+          <Button
+            key={tpl.id}
+            small
+            variant={reverseTemplate === tpl.id ? "primary" : "secondary"}
+            T={T}
+            onClick={() => dispatch({ type: SET_REVERSE_TEMPLATE, id: tpl.id })}
+          >
+            {tpl.name}
+          </Button>
+        ))}
+      </div>
+
       {rings.length === 0 && (
         <div
           style={{
@@ -123,7 +144,7 @@ function ReversePanel({ T, state, dispatch }) {
         >
           {rings.map((r, i) => {
             const isActive = r.id === activeReverseDecorationId;
-            const MC = MOTIFS[r.motifId ?? 0];
+            const MC = MOTIFS[r.motifId ?? 0] || MOTIFS[0];
             return (
               <button
                 key={r.id}
@@ -405,6 +426,7 @@ export function StageFinalize() {
   const previewSide = selectPreviewSide(state);
   const { isDownloading, statusMessage } = selectExport(state);
   const reverseRings = selectReverseDecorations(state);
+  const reverseTemplate = selectReverseTemplate(state);
   const { theme, activeReverseDecorationId } = state.ui;
 
   const { downloadJPEG, downloadSVG } = useExportArtwork({
@@ -413,6 +435,7 @@ export function StageFinalize() {
     library,
     reverseRings,
     T,
+    template: reverseTemplate,
   });
 
   const toggleTheme = () =>
@@ -517,6 +540,8 @@ export function StageFinalize() {
               reverseRings={reverseRings}
               library={library}
               activeRingId={activeReverseDecorationId}
+              template={reverseTemplate}
+              clusters={clusters}
             />
           )}
         </div>
@@ -603,8 +628,7 @@ export function StageFinalize() {
               borderRadius: 4,
             }}
           >
-            Switch to <strong style={{ color: T.txt }}>Reverse</strong> to add
-            ring patterns behind the note area.
+            Switch to <strong style={{ color: T.txt }}>Reverse</strong> to see the back side with the pattern.
           </div>
         ) : (
           <ReversePanel T={T} state={state} dispatch={dispatch} />
@@ -616,10 +640,7 @@ export function StageFinalize() {
             <Button T={T} onClick={handleJPEG} disabled={isDownloading}>
               {isDownloading
                 ? statusMessage
-                : "↓ Download JPEG (front + reverse)"}
-            </Button>
-            <Button variant="secondary" T={T} onClick={downloadSVG}>
-              ↓ Download SVG (front + reverse)
+                : "↓ Download PNG"}
             </Button>
             <Button variant="blue" T={T} onClick={handleEmail}>
               ✉ Send via Email
@@ -655,8 +676,9 @@ export function StageFinalize() {
               lineHeight: 1.5,
             }}
           >
-            Email: download the JPEG first, then attach it to the draft that
-            opens.
+            Note: email attachments cannot be added automatically from the
+            browser. Download the JPEG first, then attach it to the draft
+            manually.
           </p>
         </div>
       </aside>
