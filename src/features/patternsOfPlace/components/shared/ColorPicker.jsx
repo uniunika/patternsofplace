@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ColorHarmonyWheel } from "./ColorHarmonyWheel.jsx";
 import { FONT, FONT_MONO } from "../../data/constants/themes.js";
 
 const COLOR_LABELS = ["Dark", "Mid", "Accent", "Alt", "Light"];
+
+const PICKER_MODES = [
+  { id: "harmony", label: "Harmony" },
+  { id: "manual", label: "Manual" },
+];
 
 const HARMONY_MODES = [
   { id: "complementary", label: "Complementary" },
@@ -56,6 +62,34 @@ const HARMONY_PRESETS = {
     { offset: 0, sat: 0.24, light: 0.3 },
   ],
 };
+
+const MANUAL_PALETTES = [
+  {
+    id: "earth",
+    label: "Earth",
+    colors: ["#2f241d", "#7a4d35", "#c47a52", "#e7c39a", "#f2eadf"],
+  },
+  {
+    id: "sunset",
+    label: "Sunset",
+    colors: ["#40152a", "#7c274f", "#c04c69", "#f08a68", "#ffd5a8"],
+  },
+  {
+    id: "garden",
+    label: "Garden",
+    colors: ["#173427", "#2f6b4f", "#61a278", "#a8d4a0", "#eef8df"],
+  },
+  {
+    id: "ink",
+    label: "Ink",
+    colors: ["#111827", "#334155", "#64748b", "#cbd5e1", "#f8fafc"],
+  },
+  {
+    id: "spice",
+    label: "Spice",
+    colors: ["#301913", "#7b3b2b", "#c26c42", "#e2a66f", "#f5e8cf"],
+  },
+];
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -190,12 +224,18 @@ function wheelMarker(color, index, count) {
 
 export function ColorPicker({ label, colors, onChange, T }) {
   const wheelRef = useRef(null);
-  const [mode, setMode] = useState("complementary");
+  const manualColorsRef = useRef(
+    Array.isArray(colors) && colors.length > 0 ? [...colors] : null,
+  );
+  const [pickerMode, setPickerMode] = useState("harmony");
+  const [harmonyMode, setHarmonyMode] = useState("complementary");
   const [dragging, setDragging] = useState(false);
+  const [newManualColor, setNewManualColor] = useState("#3a2417");
+
   const currentColors =
     Array.isArray(colors) && colors.length > 0
       ? colors
-      : buildPalette("#3a2417", mode);
+      : buildPalette("#3a2417", harmonyMode);
 
   const baseHsl = useMemo(
     () => hexToHsl(currentColors[0] ?? "#3a2417"),
@@ -203,7 +243,7 @@ export function ColorPicker({ label, colors, onChange, T }) {
   );
 
   useEffect(() => {
-    if (!dragging) return;
+    if (!dragging || pickerMode !== "harmony") return;
 
     const handleMove = (event) => {
       const rect = wheelRef.current?.getBoundingClientRect();
@@ -220,7 +260,7 @@ export function ColorPicker({ label, colors, onChange, T }) {
         saturation * 0.92 + 0.08,
         0.52,
       );
-      onChange(buildPalette(nextBase, mode));
+      onChange(buildPalette(nextBase, harmonyMode));
     };
 
     const handleUp = () => setDragging(false);
@@ -231,17 +271,39 @@ export function ColorPicker({ label, colors, onChange, T }) {
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerup", handleUp);
     };
-  }, [dragging, mode, onChange]);
+  }, [dragging, harmonyMode, onChange, pickerMode]);
+
+  const commitColors = (nextColors) => {
+    if (pickerMode === "manual") {
+      manualColorsRef.current = [...nextColors];
+    }
+    onChange(nextColors);
+  };
 
   const setPaletteMode = (nextMode) => {
-    setMode(nextMode);
+    setHarmonyMode(nextMode);
     onChange(buildPalette(currentColors[0] ?? "#3a2417", nextMode));
+  };
+
+  const switchToHarmony = () => {
+    setPickerMode("harmony");
+    onChange(buildPalette(currentColors[0] ?? "#3a2417", harmonyMode));
+  };
+
+  const switchToManual = () => {
+    setPickerMode("manual");
+    const nextManualColors =
+      manualColorsRef.current && manualColorsRef.current.length > 0
+        ? manualColorsRef.current
+        : currentColors;
+    manualColorsRef.current = [...nextManualColors];
+    onChange([...nextManualColors]);
   };
 
   const updateColor = (index, value) => {
     const next = [...currentColors];
     next[index] = value;
-    onChange(next);
+    commitColors(next);
   };
 
   const applyWheelBase = (event) => {
@@ -259,9 +321,30 @@ export function ColorPicker({ label, colors, onChange, T }) {
       saturation * 0.92 + 0.08,
       0.52,
     );
-    onChange(buildPalette(nextBase, mode));
+    onChange(buildPalette(nextBase, harmonyMode));
     setDragging(true);
   };
+
+  const applyManualPalette = (palette) => {
+    setPickerMode("manual");
+    manualColorsRef.current = [...palette];
+    onChange([...palette]);
+  };
+
+  const addManualColor = () => {
+    const next = [...currentColors, newManualColor];
+    commitColors(next);
+  };
+
+  const removeManualColor = (index) => {
+    if (currentColors.length <= 1) return;
+    const next = currentColors.filter(
+      (_, currentIndex) => currentIndex !== index,
+    );
+    commitColors(next);
+  };
+
+  const colorList = currentColors.length > 0 ? currentColors : ["#3a2417"];
 
   return (
     <div style={{ marginBottom: 10 }}>
@@ -282,13 +365,15 @@ export function ColorPicker({ label, colors, onChange, T }) {
       <div
         style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}
       >
-        {HARMONY_MODES.map((option) => {
-          const isActive = option.id === mode;
+        {PICKER_MODES.map((option) => {
+          const isActive = option.id === pickerMode;
           return (
             <button
               key={option.id}
               type="button"
-              onClick={() => setPaletteMode(option.id)}
+              onClick={
+                option.id === "harmony" ? switchToHarmony : switchToManual
+              }
               style={{
                 padding: "4px 8px",
                 fontSize: 10,
@@ -308,151 +393,86 @@ export function ColorPicker({ label, colors, onChange, T }) {
         })}
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        <div
-          ref={wheelRef}
-          onPointerDown={applyWheelBase}
-          role="application"
-          aria-label="Color harmony wheel"
-          style={{
-            position: "relative",
-            width: 168,
-            height: 168,
-            borderRadius: "50%",
-            border: `1px solid ${T.brd}`,
-            background:
-              "conic-gradient(#ff4d4d, #ffa64d, #f7e84a, #60d66f, #49d6ff, #596dff, #c44dff, #ff4d9d, #ff4d4d)",
-            boxShadow:
-              "inset 0 0 0 12px rgba(0,0,0,0.14), inset 0 0 0 36px rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.28)",
-            overflow: "hidden",
-            cursor: "crosshair",
-            touchAction: "none",
-            flexShrink: 0,
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              inset: 14,
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle at center, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.18) 40%, rgba(255,255,255,0.02) 66%, rgba(0,0,0,0.08) 100%)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 24,
-              borderRadius: "50%",
-              border: `1px solid rgba(255,255,255,0.18)`,
-            }}
-          />
-
-          {currentColors.slice(0, 5).map((color, index) => (
-            <div
-              key={`${color}-${index}`}
-              style={{
-                position: "absolute",
-                width: index === 0 ? 16 : 12,
-                height: index === 0 ? 16 : 12,
-                borderRadius: "50%",
-                background: color,
-                ...wheelMarker(color, index, currentColors.length),
-                pointerEvents: "none",
-              }}
-            />
-          ))}
-
-          <div
-            style={{
-              position: "absolute",
-              left: `${50 + Math.cos(((baseHsl.h - 90) * Math.PI) / 180) * (34 + baseHsl.s * 54)}%`,
-              top: `${50 + Math.sin(((baseHsl.h - 90) * Math.PI) / 180) * (34 + baseHsl.s * 54)}%`,
-              width: 20,
-              height: 20,
-              borderRadius: "50%",
-              border: `2px solid ${T.txt}`,
-              transform: "translate(-50%, -50%)",
-              boxShadow: `0 0 0 2px rgba(0,0,0,0.55), 0 0 0 5px ${currentColors[0] ?? "#3a2417"}55`,
-              pointerEvents: "none",
-            }}
-          />
-        </div>
-
-        <div style={{ flex: 1, minWidth: 168 }}>
+      {pickerMode === "harmony" ? (
+        <ColorHarmonyWheel colors={colorList} onChange={onChange} T={T} />
+      ) : (
+        <div style={{ display: "grid", gap: 10 }}>
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(92px, 1fr))",
               gap: 6,
-              marginBottom: 6,
             }}
           >
-            {currentColors.slice(0, 5).map((color, index) => (
-              <div
-                key={`${label}-${index}`}
+            {MANUAL_PALETTES.map((palette) => (
+              <button
+                key={palette.id}
+                type="button"
+                onClick={() => applyManualPalette(palette.colors)}
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 4,
+                  padding: 0,
+                  borderRadius: 8,
+                  border: `1px solid ${T.brd}`,
+                  background: T.surf1,
+                  cursor: "pointer",
+                  overflow: "hidden",
+                  textAlign: "left",
                 }}
               >
-                <input
-                  type="color"
-                  value={color}
-                  onChange={(e) => updateColor(index, e.target.value)}
+                <div style={{ display: "flex", height: 24 }}>
+                  {palette.colors.map((color) => (
+                    <div key={color} style={{ flex: 1, background: color }} />
+                  ))}
+                </div>
+                <div
                   style={{
-                    width: "100%",
-                    height: 28,
-                    border: `1px solid ${T.brd}`,
-                    borderRadius: 4,
-                    cursor: "pointer",
-                    padding: 2,
-                    background: "transparent",
+                    padding: "6px 8px 7px",
+                    fontSize: 10,
+                    fontFamily: FONT,
+                    fontWeight: 700,
+                    color: T.txt,
                   }}
-                />
-                <span
-                  style={{ fontSize: 7, color: T.dim, fontFamily: FONT_MONO }}
                 >
-                  {COLOR_LABELS[index]}
-                </span>
-              </div>
+                  {palette.label}
+                </div>
+              </button>
             ))}
           </div>
 
-          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-            {currentColors.slice(0, 5).map((color, index) => (
-              <button
-                key={`${color}-chip-${index}`}
-                type="button"
-                onClick={() => onChange(buildPalette(color, mode))}
-                aria-label={`Use palette color ${index + 1}`}
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "end",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span
+                style={{ fontSize: 7, color: T.dim, fontFamily: FONT_MONO }}
+              >
+                Add your color
+              </span>
+              <input
+                type="color"
+                value={newManualColor}
+                onChange={(event) => setNewManualColor(event.target.value)}
                 style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 4,
+                  width: 64,
+                  height: 30,
                   border: `1px solid ${T.brd}`,
-                  background: color,
+                  borderRadius: 4,
                   cursor: "pointer",
-                  boxShadow: index === 0 ? `0 0 0 2px ${T.gold}` : "none",
+                  padding: 2,
+                  background: "transparent",
                 }}
               />
-            ))}
-          </div>
-          <div style={{ marginTop: 10 }}>
+            </div>
+
             <button
               type="button"
-              onClick={() => onChange(buildPalette(currentColors[0] ?? "#3a2417", mode))}
+              onClick={addManualColor}
               style={{
-                width: "100%",
                 padding: "8px 10px",
                 fontSize: 11,
                 fontFamily: FONT,
@@ -464,11 +484,113 @@ export function ColorPicker({ label, colors, onChange, T }) {
                 cursor: "pointer",
               }}
             >
-              Create palette from base color
+              Add color
             </button>
           </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
+              gap: 6,
+            }}
+          >
+            {currentColors.map((color, index) => (
+              <div
+                key={`${color}-${index}`}
+                style={{
+                  border: `1px solid ${T.brd}`,
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  background: T.surf1,
+                }}
+              >
+                <div
+                  style={{
+                    height: 28,
+                    background: color,
+                    borderBottom: `1px solid ${T.brd}`,
+                  }}
+                />
+                <div
+                  style={{
+                    padding: 6,
+                    display: "grid",
+                    gap: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 6,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 7,
+                        color: T.dim,
+                        fontFamily: FONT_MONO,
+                      }}
+                    >
+                      {COLOR_LABELS[index] ?? `Color ${index + 1}`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeManualColor(index)}
+                      disabled={currentColors.length <= 1}
+                      style={{
+                        padding: "2px 6px",
+                        fontSize: 8,
+                        fontFamily: FONT,
+                        fontWeight: 700,
+                        color: currentColors.length <= 1 ? T.dim : T.txt,
+                        background: "transparent",
+                        border: `1px solid ${T.brd}`,
+                        borderRadius: 999,
+                        cursor:
+                          currentColors.length <= 1 ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <input
+                    type="color"
+                    value={color}
+                    onChange={(event) => updateColor(index, event.target.value)}
+                    style={{
+                      width: "100%",
+                      height: 28,
+                      border: `1px solid ${T.brd}`,
+                      borderRadius: 4,
+                      cursor: "pointer",
+                      padding: 2,
+                      background: "transparent",
+                    }}
+                  />
+                  <input
+                    value={color}
+                    onChange={(event) => updateColor(index, event.target.value)}
+                    spellCheck={false}
+                    style={{
+                      width: "100%",
+                      padding: "6px 7px",
+                      borderRadius: 6,
+                      border: `1px solid ${T.brd}`,
+                      background: T.surf2,
+                      color: T.txt,
+                      fontFamily: FONT_MONO,
+                      fontSize: 10,
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
