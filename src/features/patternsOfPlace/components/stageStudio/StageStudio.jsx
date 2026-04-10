@@ -443,39 +443,45 @@ export function StageStudio() {
                 marginBottom: 8,
               }}
             >
-              {SELECTABLE_MOTIFS.map(({ id, component: MC, name, previewColors }) => {
-                const isActive = activeRing.motifId === id;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => {
-                      updRing("motifId", id);
-                      updRing("presetId", null);
-                    }}
-                    aria-label={name}
-                    style={{
-                      aspectRatio: "1",
-                      padding: 3,
-                      border: `1.5px solid ${isActive ? "#00e5ff" : T.brd}`,
-                      background: isActive
-                        ? "rgba(0,229,255,0.1)"
-                        : "transparent",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 3,
-                      overflow: "hidden",
-                      transition: "all 0.15s",
-                    }}
-                  >
-                    <MC
-                      c={isActive ? (activeRing.colors ?? DEFAULT_COLORS) : previewColors}
-                      size={44}
-                    />
-                  </button>
-                );
-              })}
+              {SELECTABLE_MOTIFS.map(
+                ({ id, component: MC, name, previewColors }) => {
+                  const isActive = activeRing.motifId === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => {
+                        updRing("motifId", id);
+                        updRing("presetId", null);
+                      }}
+                      aria-label={name}
+                      style={{
+                        aspectRatio: "1",
+                        padding: 3,
+                        border: `1.5px solid ${isActive ? "#00e5ff" : T.brd}`,
+                        background: isActive
+                          ? "rgba(0,229,255,0.1)"
+                          : "transparent",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: 3,
+                        overflow: "hidden",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      <MC
+                        c={
+                          isActive
+                            ? (activeRing.colors ?? DEFAULT_COLORS)
+                            : previewColors
+                        }
+                        size={44}
+                      />
+                    </button>
+                  );
+                },
+              )}
             </div>
             <ColorPicker
               label="Ring Colors"

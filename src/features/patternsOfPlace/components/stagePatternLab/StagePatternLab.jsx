@@ -356,13 +356,13 @@ export function StagePatternLab() {
             marginBottom: 10,
           }}
         >
-              {SELECTABLE_MOTIFS.map(({ id, component: MC, name }) => {
-                const isActive = active.motifId === id;
+          {SELECTABLE_MOTIFS.map(({ id, component: MC, name }) => {
+            const isActive = active.motifId === id;
             return (
               <button
                 key={id}
                 onClick={() => upd("motifId", id)}
-                    aria-label={name}
+                aria-label={name}
                 style={{
                   aspectRatio: "1",
                   padding: 2,
@@ -377,10 +377,7 @@ export function StagePatternLab() {
                   transition: "all 0.15s",
                 }}
               >
-                <MC
-                  c={active.colors}
-                  size={38}
-                />
+                <MC c={active.colors} size={38} />
               </button>
             );
           })}
