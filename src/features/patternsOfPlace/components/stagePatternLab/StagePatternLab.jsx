@@ -145,7 +145,10 @@ export function StagePatternLab() {
     if (gesture.mode === "pinch" && touches.length === 2) {
       const dist = touchDistance(touches[0], touches[1]);
       if (!gesture.startDistance) return;
-      upd("scale", clamp(gesture.startScale * (dist / gesture.startDistance), 0.2, 3));
+      upd(
+        "scale",
+        clamp(gesture.startScale * (dist / gesture.startDistance), 0.2, 3),
+      );
     }
   };
 

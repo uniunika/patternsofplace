@@ -5,7 +5,15 @@ import { FONT } from "../../data/constants/themes.js";
  * Touch-optimized button component for kiosk interface.
  * Larger touch targets, no hover lift (not appropriate for touch).
  */
-export function Button({ children, onClick, disabled, variant = "primary", small, style, T }) {
+export function Button({
+  children,
+  onClick,
+  disabled,
+  variant = "primary",
+  small,
+  style,
+  T,
+}) {
   const [active, setActive] = useState(false);
 
   const base = {
@@ -29,15 +37,30 @@ export function Button({ children, onClick, disabled, variant = "primary", small
     WebkitUserSelect: "none",
     userSelect: "none",
     transform: active && !disabled ? "scale(0.98)" : "scale(1)",
-    boxShadow: active && !disabled && variant === "primary" ? "inset 0 2px 4px rgba(0,0,0,0.2)" : "none",
+    boxShadow:
+      active && !disabled && variant === "primary"
+        ? "inset 0 2px 4px rgba(0,0,0,0.2)"
+        : "none",
   };
 
   const variants = {
-    primary:   { background: T.gold, color: T.bg },
-    secondary: { background: T.surf2, color: T.mut, border: `1px solid ${T.brd}` },
-    ghost:     { background: "transparent", color: T.mut, border: `1px solid ${T.brd}` },
-    danger:    { background: "transparent", color: "#e05a5a", border: "1px solid #e05a5a" },
-    blue:      { background: "#1565c0", color: "#ffffff" },
+    primary: { background: T.gold, color: T.bg },
+    secondary: {
+      background: T.surf2,
+      color: T.mut,
+      border: `1px solid ${T.brd}`,
+    },
+    ghost: {
+      background: "transparent",
+      color: T.mut,
+      border: `1px solid ${T.brd}`,
+    },
+    danger: {
+      background: "transparent",
+      color: "#e05a5a",
+      border: "1px solid #e05a5a",
+    },
+    blue: { background: "#1565c0", color: "#ffffff" },
   };
 
   return (

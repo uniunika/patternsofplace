@@ -49,11 +49,23 @@ export function StageTemplatePicker() {
         Step 2 / 3
       </div>
       <h2
-        style={{ fontSize: 48, fontWeight: 800, color: T.txt, marginBottom: 12 }}
+        style={{
+          fontSize: 48,
+          fontWeight: 800,
+          color: T.txt,
+          marginBottom: 12,
+        }}
       >
         Choose Layout
       </h2>
-      <p style={{ fontSize: 16, color: T.mut, marginBottom: 48, lineHeight: 1.6 }}>
+      <p
+        style={{
+          fontSize: 16,
+          color: T.mut,
+          marginBottom: 48,
+          lineHeight: 1.6,
+        }}
+      >
         Pick a starting arrangement for your clusters
       </p>
 

@@ -501,7 +501,7 @@ export function StageFinalize() {
       <Button
         variant="secondary"
         small={false}
-        T={T} 
+        T={T}
         onClick={goBack}
         style={{ position: "fixed", top: 28, left: 28, zIndex: 100 }}
       >

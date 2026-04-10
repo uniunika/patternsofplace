@@ -132,7 +132,10 @@ export function StageStudio() {
     if (gesture.mode === "pinch" && touches.length === 2) {
       const dist = touchDistance(touches[0], touches[1]);
       if (!gesture.startDistance) return;
-      updCl("scale", clamp(gesture.startScale * (dist / gesture.startDistance), 0.2, 3));
+      updCl(
+        "scale",
+        clamp(gesture.startScale * (dist / gesture.startDistance), 0.2, 3),
+      );
     }
   };
 
@@ -194,7 +197,13 @@ export function StageStudio() {
         </div>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          <Button variant="secondary" small={false} T={T} onClick={toggleTheme} style={{ flex: 1 }}>
+          <Button
+            variant="secondary"
+            small={false}
+            T={T}
+            onClick={toggleTheme}
+            style={{ flex: 1 }}
+          >
             {theme === "dark" ? "☀ Light" : "◐ Dark"}
           </Button>
         </div>
