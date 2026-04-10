@@ -24,7 +24,11 @@ import { Label } from "../shared/Label.jsx";
 import { SliderControl } from "../shared/SliderControl.jsx";
 import { ColorPicker } from "../shared/ColorPicker.jsx";
 import { PatternTile } from "../shared/PatternTile.jsx";
-import { MOTIFS, MOTIF_NAMES } from "../../data/motifs/motifRegistry.js";
+import {
+  MOTIFS,
+  MOTIF_NAMES,
+  SELECTABLE_MOTIFS,
+} from "../../data/motifs/motifRegistry.js";
 import { PREVIEW_BG_OPTIONS } from "../../data/constants/backgrounds.js";
 import { FONT, FONT_MONO } from "../../data/constants/themes.js";
 
@@ -352,13 +356,13 @@ export function StagePatternLab() {
             marginBottom: 10,
           }}
         >
-          {MOTIFS.map((MC, id) => {
-            const isActive = active.motifId === id;
+              {SELECTABLE_MOTIFS.map(({ id, component: MC, name }) => {
+                const isActive = active.motifId === id;
             return (
               <button
                 key={id}
                 onClick={() => upd("motifId", id)}
-                aria-label={MOTIF_NAMES[id]}
+                    aria-label={name}
                 style={{
                   aspectRatio: "1",
                   padding: 2,
@@ -374,11 +378,7 @@ export function StagePatternLab() {
                 }}
               >
                 <MC
-                  c={
-                    isActive
-                      ? active.colors
-                      : ["#444", "#555", "#333", "#444", "#555"]
-                  }
+                  c={active.colors}
                   size={38}
                 />
               </button>
@@ -635,7 +635,7 @@ export function StagePatternLab() {
           style={{
             background: previewBgColor,
             borderRadius: 10,
-            padding: 24,
+            padding: 30,
             backgroundImage:
               "radial-gradient(circle at 50% 35%, rgba(255,255,255,0.05), transparent 48%), linear-gradient(180deg, #1a1a1a 0%, #101010 100%)",
             border: `1px solid ${T.brd}`,
@@ -645,7 +645,7 @@ export function StagePatternLab() {
         >
           <PatternTile
             layers={layers}
-            size={240}
+            size={300}
             activeLayerId={activeLayerId}
           />
         </div>
@@ -693,7 +693,7 @@ export function StagePatternLab() {
 
         <div
           style={{
-            width: 240,
+            width: 300,
             marginTop: 4,
             display: "flex",
             flexDirection: "column",

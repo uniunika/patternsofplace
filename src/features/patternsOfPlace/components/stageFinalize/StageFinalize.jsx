@@ -31,7 +31,11 @@ import { CardCanvas } from "../shared/CardCanvas.jsx";
 import { PatternTile } from "../shared/PatternTile.jsx";
 import { PostcardReverse } from "./PostcardReverse.jsx";
 import { useExportArtwork } from "../../hooks/useExportArtwork.js";
-import { MOTIFS, MOTIF_NAMES } from "../../data/motifs/motifRegistry.js";
+import {
+  MOTIFS,
+  MOTIF_NAMES,
+  SELECTABLE_MOTIFS,
+} from "../../data/motifs/motifRegistry.js";
 import { DEFAULT_COLORS } from "../../data/constants/defaults.js";
 import { REVERSE_TEMPLATES } from "../../data/constants/templates.js";
 import { tangentSize } from "../../domain/geometry.js";
@@ -285,7 +289,7 @@ function ReversePanel({ T, state, dispatch }) {
                   marginBottom: 8,
                 }}
               >
-                {MOTIFS.map((MC, id) => {
+                {SELECTABLE_MOTIFS.map(({ id, component: MC, name, previewColors }) => {
                   const isActive = active.motifId === id;
                   return (
                     <button
@@ -294,7 +298,7 @@ function ReversePanel({ T, state, dispatch }) {
                         upd("motifId", id);
                         upd("presetId", null);
                       }}
-                      aria-label={MOTIF_NAMES[id]}
+                      aria-label={name}
                       style={{
                         aspectRatio: "1",
                         padding: 3,
@@ -312,11 +316,7 @@ function ReversePanel({ T, state, dispatch }) {
                       }}
                     >
                       <MC
-                        c={
-                          isActive
-                            ? (active.colors ?? DEFAULT_COLORS)
-                            : ["#444", "#555", "#333", "#444", "#555"]
-                        }
+                        c={isActive ? (active.colors ?? DEFAULT_COLORS) : previewColors}
                         size={44}
                       />
                     </button>

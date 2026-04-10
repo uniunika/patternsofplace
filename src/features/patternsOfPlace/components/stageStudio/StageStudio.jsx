@@ -29,7 +29,11 @@ import { SliderControl } from "../shared/SliderControl.jsx";
 import { ColorPicker } from "../shared/ColorPicker.jsx";
 import { CardCanvas } from "../shared/CardCanvas.jsx";
 import { PatternTile } from "../shared/PatternTile.jsx";
-import { MOTIFS, MOTIF_NAMES } from "../../data/motifs/motifRegistry.js";
+import {
+  MOTIFS,
+  MOTIF_NAMES,
+  SELECTABLE_MOTIFS,
+} from "../../data/motifs/motifRegistry.js";
 import { PREVIEW_BG_OPTIONS } from "../../data/constants/backgrounds.js";
 import {
   DEFAULT_COLORS,
@@ -439,7 +443,7 @@ export function StageStudio() {
                 marginBottom: 8,
               }}
             >
-              {MOTIFS.map((MC, id) => {
+              {SELECTABLE_MOTIFS.map(({ id, component: MC, name, previewColors }) => {
                 const isActive = activeRing.motifId === id;
                 return (
                   <button
@@ -448,7 +452,7 @@ export function StageStudio() {
                       updRing("motifId", id);
                       updRing("presetId", null);
                     }}
-                    aria-label={MOTIF_NAMES[id]}
+                    aria-label={name}
                     style={{
                       aspectRatio: "1",
                       padding: 3,
@@ -466,11 +470,7 @@ export function StageStudio() {
                     }}
                   >
                     <MC
-                      c={
-                        isActive
-                          ? (activeRing.colors ?? DEFAULT_COLORS)
-                          : ["#444", "#555", "#333", "#444", "#555"]
-                      }
+                      c={isActive ? (activeRing.colors ?? DEFAULT_COLORS) : previewColors}
                       size={44}
                     />
                   </button>

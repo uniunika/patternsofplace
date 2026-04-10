@@ -37,12 +37,13 @@ import {
   MAX_RINGS_PER_CLUSTER,
 } from "../data/constants/defaults.js";
 import { REVERSE_TEMPLATES } from "../data/constants/templates.js";
+import { MOTIF_COUNT } from "../data/motifs/motifRegistry.js";
 
 // ─── Factories ────────────────────────────────────────────────────────────────
 
 export const makeLayer = (motifIndex = 0) => ({
   id: makeId(),
-  motifId: motifIndex % 9,
+  motifId: motifIndex % MOTIF_COUNT,
   x: 0,
   y: 0,
   scale: 1,
@@ -54,7 +55,7 @@ export const makeRing = (index = 0) => ({
   id: makeId(),
   count: 6 + index * 4,
   radius: 80 + index * 80,
-  motifId: index % 9,
+  motifId: index % MOTIF_COUNT,
   colors: [...DEFAULT_COLORS],
   presetId: null,
 });
