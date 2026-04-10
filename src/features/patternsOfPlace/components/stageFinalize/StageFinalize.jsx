@@ -38,13 +38,13 @@ import { tangentSize } from "../../domain/geometry.js";
 import { FONT, FONT_MONO } from "../../data/constants/themes.js";
 
 const PANEL_STYLE = {
-  width: 280,
+  width: 320,
   flexShrink: 0,
   height: "100%",
   minHeight: 0,
   overflowY: "auto",
   overscrollBehavior: "contain",
-  padding: "14px 13px",
+  padding: "28px 20px",
   display: "flex",
   flexDirection: "column",
 };
@@ -500,10 +500,10 @@ export function StageFinalize() {
       {/* ── Back Button ── */}
       <Button
         variant="secondary"
-        small
-        T={T}
+        small={false}
+        T={T} 
         onClick={goBack}
-        style={{ position: "fixed", top: 24, left: 24, zIndex: 100 }}
+        style={{ position: "fixed", top: 28, left: 28, zIndex: 100 }}
       >
         ← Back
       </Button>

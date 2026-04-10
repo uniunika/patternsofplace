@@ -4,12 +4,12 @@ export function Label({ children, T }) {
   return (
     <div
       style={{
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 600,
         letterSpacing: "0.05em",
         textTransform: "uppercase",
         color: T.mut,
-        marginBottom: 6,
+        marginBottom: 10,
         fontFamily: FONT,
       }}
     >

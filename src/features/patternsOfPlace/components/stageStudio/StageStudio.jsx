@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { usePatternsOfPlace } from "../../app/PatternsOfPlaceProvider.jsx";
 import {
   SET_STAGE,
@@ -39,13 +39,13 @@ import { tangentSize } from "../../domain/geometry.js";
 import { FONT, FONT_MONO } from "../../data/constants/themes.js";
 
 const PANEL_STYLE = {
-  width: 280,
+  width: 320,
   flexShrink: 0,
   height: "100%",
   minHeight: 0,
   overflowY: "auto",
   overscrollBehavior: "contain",
-  padding: "14px 13px",
+  padding: "28px 20px",
   display: "flex",
   flexDirection: "column",
 };
@@ -59,6 +59,8 @@ export function StageStudio() {
   const bgColor = selectBgColor(state);
   const ringSetupMode = selectRingSetupMode(state);
   const { theme, activeClusterId, activeRingId } = state.ui;
+  const previewRef = useRef(null);
+  const gestureRef = useRef(null);
 
   const toggleTheme = () =>
     dispatch({ type: SET_THEME, theme: theme === "dark" ? "light" : "dark" });
@@ -80,6 +82,66 @@ export function StageStudio() {
   const finalize = () => dispatch({ type: SET_STAGE, stage: 4 });
   const goBack = () => dispatch({ type: SET_STAGE, stage: 2 });
 
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const touchDistance = (t1, t2) => {
+    const dx = t2.clientX - t1.clientX;
+    const dy = t2.clientY - t1.clientY;
+    return Math.hypot(dx, dy);
+  };
+
+  const handlePreviewTouchStart = (event) => {
+    if (!activeCl || !previewRef.current) return;
+
+    const touches = event.touches;
+    if (touches.length === 1) {
+      gestureRef.current = {
+        mode: "drag",
+        startTouchX: touches[0].clientX,
+        startTouchY: touches[0].clientY,
+        startClusterX: activeCl.x,
+        startClusterY: activeCl.y,
+      };
+      return;
+    }
+
+    if (touches.length === 2) {
+      gestureRef.current = {
+        mode: "pinch",
+        startDistance: touchDistance(touches[0], touches[1]),
+        startScale: activeCl.scale,
+      };
+    }
+  };
+
+  const handlePreviewTouchMove = (event) => {
+    if (!activeCl || !previewRef.current || !gestureRef.current) return;
+    event.preventDefault();
+
+    const rect = previewRef.current.getBoundingClientRect();
+    const touches = event.touches;
+    const gesture = gestureRef.current;
+
+    if (gesture.mode === "drag" && touches.length === 1) {
+      const dx = (touches[0].clientX - gesture.startTouchX) / rect.width;
+      const dy = (touches[0].clientY - gesture.startTouchY) / rect.height;
+      updCl("x", clamp(gesture.startClusterX + dx, 0, 1));
+      updCl("y", clamp(gesture.startClusterY + dy, 0, 1));
+      return;
+    }
+
+    if (gesture.mode === "pinch" && touches.length === 2) {
+      const dist = touchDistance(touches[0], touches[1]);
+      if (!gesture.startDistance) return;
+      updCl("scale", clamp(gesture.startScale * (dist / gesture.startDistance), 0.2, 3));
+    }
+  };
+
+  const handlePreviewTouchEnd = (event) => {
+    if (event.touches.length === 0) {
+      gestureRef.current = null;
+    }
+  };
+
   if (!activeCl || !activeRing) return null;
 
   return (
@@ -97,10 +159,10 @@ export function StageStudio() {
       {/* ── Back Button ── */}
       <Button
         variant="secondary"
-        small
+        small={false}
         T={T}
         onClick={goBack}
-        style={{ position: "fixed", top: 24, left: 24, zIndex: 100 }}
+        style={{ position: "fixed", top: 28, left: 28, zIndex: 100 }}
       >
         ← Back
       </Button>
@@ -131,9 +193,9 @@ export function StageStudio() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-          <Button variant="secondary" small T={T} onClick={toggleTheme}>
-            {theme === "dark" ? "☀" : "◐"}
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <Button variant="secondary" small={false} T={T} onClick={toggleTheme} style={{ flex: 1 }}>
+            {theme === "dark" ? "☀ Light" : "◐ Dark"}
           </Button>
         </div>
         <Divider T={T} />
@@ -179,16 +241,18 @@ export function StageStudio() {
               key={cl.id}
               onClick={() => dispatch({ type: SET_ACTIVE_CLUSTER, id: cl.id })}
               style={{
-                padding: "3px 10px",
-                fontSize: 11,
+                padding: "8px 14px",
+                fontSize: 13,
                 fontWeight: 700,
                 fontFamily: FONT,
+                minHeight: 44,
                 border: `1.5px solid ${activeClusterId === cl.id ? T.txt : T.brd}`,
                 background: activeClusterId === cl.id ? T.surf2 : "transparent",
                 color: activeClusterId === cl.id ? T.txt : T.mut,
                 cursor: "pointer",
                 borderRadius: 4,
                 transition: "all 0.15s",
+                touchAction: "manipulation",
               }}
             >
               C{i + 1}
@@ -273,10 +337,11 @@ export function StageStudio() {
               key={r.id}
               onClick={() => dispatch({ type: SET_ACTIVE_RING, id: r.id })}
               style={{
-                padding: "3px 10px",
-                fontSize: 11,
+                padding: "8px 14px",
+                fontSize: 13,
                 fontWeight: 700,
                 fontFamily: FONT,
+                minHeight: 44,
                 border: `1.5px solid ${activeRingId === r.id ? "#00e5ff" : T.brd}`,
                 background:
                   activeRingId === r.id
@@ -290,6 +355,7 @@ export function StageStudio() {
                     ? "0 0 0 2px rgba(0,229,255,0.3)"
                     : "none",
                 transition: "all 0.15s",
+                touchAction: "manipulation",
               }}
             >
               R{i + 1}
@@ -621,7 +687,18 @@ export function StageStudio() {
         >
           Postcard Preview
         </div>
-        <div style={{ borderRadius: 6, boxShadow: `0 12px 40px ${T.shadow}` }}>
+        <div
+          ref={previewRef}
+          onTouchStart={handlePreviewTouchStart}
+          onTouchMove={handlePreviewTouchMove}
+          onTouchEnd={handlePreviewTouchEnd}
+          onTouchCancel={handlePreviewTouchEnd}
+          style={{
+            borderRadius: 6,
+            boxShadow: `0 12px 40px ${T.shadow}`,
+            touchAction: "none",
+          }}
+        >
           <CardCanvas
             clusters={clusters}
             bgColor={bgColor}
@@ -631,6 +708,9 @@ export function StageStudio() {
             activeClId={activeClusterId}
             activeRingId={activeRingId}
           />
+        </div>
+        <div style={{ fontSize: 10, color: T.mut, textAlign: "center" }}>
+          Touch: drag cluster with one finger, pinch with two fingers to zoom.
         </div>
         <div style={{ fontSize: 10, color: T.mut, textAlign: "center" }}>
           Active ring:{" "}

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { usePatternsOfPlace } from "../../app/PatternsOfPlaceProvider.jsx";
 import {
   SET_STAGE,
@@ -29,13 +29,13 @@ import { PREVIEW_BG_OPTIONS } from "../../data/constants/backgrounds.js";
 import { FONT, FONT_MONO } from "../../data/constants/themes.js";
 
 const PANEL_STYLE = {
-  width: 480,
+  width: 560,
   flexShrink: 0,
   height: "100%",
   minHeight: 0,
   overflowY: "auto",
   overscrollBehavior: "contain",
-  padding: "18px 16px",
+  padding: "28px 24px",
   display: "flex",
   flexDirection: "column",
 };
@@ -52,6 +52,8 @@ export function StagePatternLab() {
   const [previewBgColor, setPreviewBgColor] = useState("#101010");
   const [copiedColors, setCopiedColors] = useState(null);
   const [copyMsg, setCopyMsg] = useState("");
+  const previewRef = useRef(null);
+  const gestureRef = useRef(null);
 
   const upd = useCallback(
     (key, value) => {
@@ -93,6 +95,66 @@ export function StagePatternLab() {
   const toggleTheme = () =>
     dispatch({ type: SET_THEME, theme: theme === "dark" ? "light" : "dark" });
 
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const touchDistance = (t1, t2) => {
+    const dx = t2.clientX - t1.clientX;
+    const dy = t2.clientY - t1.clientY;
+    return Math.hypot(dx, dy);
+  };
+
+  const handlePreviewTouchStart = (event) => {
+    if (!active || !previewRef.current) return;
+    const touches = event.touches;
+
+    if (touches.length === 1) {
+      gestureRef.current = {
+        mode: "drag",
+        startTouchX: touches[0].clientX,
+        startTouchY: touches[0].clientY,
+        startX: active.x,
+        startY: active.y,
+      };
+      return;
+    }
+
+    if (touches.length === 2) {
+      gestureRef.current = {
+        mode: "pinch",
+        startDistance: touchDistance(touches[0], touches[1]),
+        startScale: active.scale,
+      };
+    }
+  };
+
+  const handlePreviewTouchMove = (event) => {
+    if (!active || !previewRef.current || !gestureRef.current) return;
+    event.preventDefault();
+
+    const touches = event.touches;
+    const gesture = gestureRef.current;
+    const rect = previewRef.current.getBoundingClientRect();
+
+    if (gesture.mode === "drag" && touches.length === 1) {
+      const dx = (touches[0].clientX - gesture.startTouchX) / (rect.width / 2);
+      const dy = (touches[0].clientY - gesture.startTouchY) / (rect.height / 2);
+      upd("x", clamp(gesture.startX + dx, -1, 1));
+      upd("y", clamp(gesture.startY + dy, -1, 1));
+      return;
+    }
+
+    if (gesture.mode === "pinch" && touches.length === 2) {
+      const dist = touchDistance(touches[0], touches[1]);
+      if (!gesture.startDistance) return;
+      upd("scale", clamp(gesture.startScale * (dist / gesture.startDistance), 0.2, 3));
+    }
+  };
+
+  const handlePreviewTouchEnd = (event) => {
+    if (event.touches.length === 0) {
+      gestureRef.current = null;
+    }
+  };
+
   return (
     <div
       style={{
@@ -108,10 +170,10 @@ export function StagePatternLab() {
       {/* ── Back Button ── */}
       <Button
         variant="secondary"
-        small
+        small={false}
         T={T}
         onClick={goBack}
-        style={{ position: "fixed", top: 24, left: 24, zIndex: 100 }}
+        style={{ position: "fixed", top: 28, left: 28, zIndex: 100 }}
       >
         ← Back
       </Button>
@@ -562,6 +624,11 @@ export function StagePatternLab() {
           Tile Preview
         </div>
         <div
+          ref={previewRef}
+          onTouchStart={handlePreviewTouchStart}
+          onTouchMove={handlePreviewTouchMove}
+          onTouchEnd={handlePreviewTouchEnd}
+          onTouchCancel={handlePreviewTouchEnd}
           style={{
             background: previewBgColor,
             borderRadius: 10,
@@ -570,6 +637,7 @@ export function StagePatternLab() {
               "radial-gradient(circle at 50% 35%, rgba(255,255,255,0.05), transparent 48%), linear-gradient(180deg, #1a1a1a 0%, #101010 100%)",
             border: `1px solid ${T.brd}`,
             boxShadow: "0 16px 48px rgba(0,0,0,0.45)",
+            touchAction: "none",
           }}
         >
           <PatternTile
@@ -614,6 +682,10 @@ export function StagePatternLab() {
               </span>
             </div>
           ))}
+        </div>
+
+        <div style={{ fontSize: 10, color: T.mut, textAlign: "center" }}>
+          Touch: drag motif with one finger, pinch with two fingers to zoom.
         </div>
 
         <div
