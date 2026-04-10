@@ -103,7 +103,9 @@ function ReversePanel({ T, state, dispatch }) {
       <Divider T={T} />
 
       <Label T={T}>Reverse Template</Label>
-      <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 10 }}>
+      <div
+        style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 10 }}
+      >
         {REVERSE_TEMPLATES.map((tpl) => (
           <Button
             key={tpl.id}
@@ -492,8 +494,20 @@ export function StageFinalize() {
         fontFamily: FONT,
         background: T.bg,
         overflow: "hidden",
+        position: "relative",
       }}
     >
+      {/* ── Back Button ── */}
+      <Button
+        variant="secondary"
+        small
+        T={T}
+        onClick={goBack}
+        style={{ position: "fixed", top: 24, left: 24, zIndex: 100 }}
+      >
+        ← Back
+      </Button>
+
       <main
         role="region"
         aria-label="Postcard preview"
@@ -584,9 +598,6 @@ export function StageFinalize() {
         </div>
 
         <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-          <Button variant="secondary" small T={T} onClick={goBack}>
-            ← Back
-          </Button>
           <Button variant="secondary" small T={T} onClick={toggleTheme}>
             {theme === "dark" ? "☀" : "◐"}
           </Button>
@@ -628,7 +639,8 @@ export function StageFinalize() {
               borderRadius: 4,
             }}
           >
-            Switch to <strong style={{ color: T.txt }}>Reverse</strong> to see the back side with the pattern.
+            Switch to <strong style={{ color: T.txt }}>Reverse</strong> to see
+            the back side with the pattern.
           </div>
         ) : (
           <ReversePanel T={T} state={state} dispatch={dispatch} />
@@ -638,9 +650,7 @@ export function StageFinalize() {
           <Divider T={T} />
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <Button T={T} onClick={handleJPEG} disabled={isDownloading}>
-              {isDownloading
-                ? statusMessage
-                : "↓ Download PNG"}
+              {isDownloading ? statusMessage : "↓ Download PNG"}
             </Button>
             <Button variant="blue" T={T} onClick={handleEmail}>
               ✉ Send via Email

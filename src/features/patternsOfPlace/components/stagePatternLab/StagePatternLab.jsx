@@ -89,6 +89,7 @@ export function StagePatternLab() {
   };
 
   const toNext = () => dispatch({ type: SET_STAGE, stage: 2 });
+  const goBack = () => dispatch({ type: SET_STAGE, stage: 0 });
   const toggleTheme = () =>
     dispatch({ type: SET_THEME, theme: theme === "dark" ? "light" : "dark" });
 
@@ -101,8 +102,19 @@ export function StagePatternLab() {
         flexDirection: "row-reverse",
         fontFamily: FONT,
         overflow: "hidden",
+        position: "relative",
       }}
     >
+      {/* ── Back Button ── */}
+      <Button
+        variant="secondary"
+        small
+        T={T}
+        onClick={goBack}
+        style={{ position: "fixed", top: 24, left: 24, zIndex: 100 }}
+      >
+        ← Back
+      </Button>
       {/* ── Control Rail ── */}
       <aside
         style={{

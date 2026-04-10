@@ -91,8 +91,20 @@ export function StageStudio() {
         fontFamily: FONT,
         background: T.bg,
         overflow: "hidden",
+        position: "relative",
       }}
     >
+      {/* ── Back Button ── */}
+      <Button
+        variant="secondary"
+        small
+        T={T}
+        onClick={goBack}
+        style={{ position: "fixed", top: 24, left: 24, zIndex: 100 }}
+      >
+        ← Back
+      </Button>
+
       {/* ── Control Rail ── */}
       <aside
         style={{
@@ -120,9 +132,6 @@ export function StageStudio() {
         </div>
 
         <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-          <Button variant="secondary" small T={T} onClick={goBack}>
-            ← Layout
-          </Button>
           <Button variant="secondary" small T={T} onClick={toggleTheme}>
             {theme === "dark" ? "☀" : "◐"}
           </Button>
