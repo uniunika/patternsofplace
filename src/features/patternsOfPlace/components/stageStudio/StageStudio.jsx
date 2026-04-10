@@ -43,7 +43,7 @@ import { tangentSize } from "../../domain/geometry.js";
 import { FONT, FONT_MONO } from "../../data/constants/themes.js";
 
 const PANEL_STYLE = {
-  width: 320,
+  width: 560,
   flexShrink: 0,
   height: "100%",
   minHeight: 0,
@@ -173,6 +173,15 @@ export function StageStudio() {
       >
         ← Back
       </Button>
+      <Button
+        variant="secondary"
+        small={false}
+        T={T}
+        onClick={toggleTheme}
+        style={{ position: "fixed", top: 28, right: 28, zIndex: 100 }}
+      >
+        {theme === "dark" ? "☀" : "◐"}
+      </Button>
 
       {/* ── Control Rail ── */}
       <aside
@@ -200,17 +209,6 @@ export function StageStudio() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          <Button
-            variant="secondary"
-            small={false}
-            T={T}
-            onClick={toggleTheme}
-            style={{ flex: 1 }}
-          >
-            {theme === "dark" ? "☀ Light" : "◐ Dark"}
-          </Button>
-        </div>
         <Divider T={T} />
 
         {/* ── Clusters ── */}
@@ -438,52 +436,44 @@ export function StageStudio() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3,1fr)",
+                gridTemplateColumns: "repeat(4,1fr)",
                 gap: 3,
                 marginBottom: 8,
               }}
             >
-              {SELECTABLE_MOTIFS.map(
-                ({ id, component: MC, name, previewColors }) => {
-                  const isActive = activeRing.motifId === id;
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => {
-                        updRing("motifId", id);
-                        updRing("presetId", null);
-                      }}
-                      aria-label={name}
-                      style={{
-                        aspectRatio: "1",
-                        padding: 3,
-                        border: `1.5px solid ${isActive ? "#00e5ff" : T.brd}`,
-                        background: isActive
-                          ? "rgba(0,229,255,0.1)"
-                          : "transparent",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: 3,
-                        overflow: "hidden",
-                        transition: "all 0.15s",
-                      }}
-                    >
-                      <MC
-                        c={
-                          isActive
-                            ? (activeRing.colors ?? DEFAULT_COLORS)
-                            : previewColors
-                        }
-                        size={44}
-                      />
-                    </button>
-                  );
-                },
-              )}
+              {SELECTABLE_MOTIFS.map(({ id, component: MC, name }) => {
+                const isActive = activeRing.motifId === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => {
+                      updRing("motifId", id);
+                      updRing("presetId", null);
+                    }}
+                    aria-label={name}
+                    style={{
+                      aspectRatio: "1",
+                      padding: 1,
+                      border: `1.5px solid ${isActive ? "#00e5ff" : T.brd}`,
+                      background: isActive
+                        ? "rgba(0,229,255,0.1)"
+                        : "transparent",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 3,
+                      overflow: "hidden",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    <MC c={activeRing.colors ?? DEFAULT_COLORS} size={46} />
+                  </button>
+                );
+              })}
             </div>
             <ColorPicker
+              key={activeRing.id}
               label="Ring Colors"
               colors={activeRing.colors ?? DEFAULT_COLORS}
               onChange={(c) => updRing("colors", c)}

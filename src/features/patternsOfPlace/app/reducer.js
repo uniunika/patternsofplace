@@ -120,6 +120,11 @@ export const initialState = {
 // ─── Reducer ─────────────────────────────────────────────────────────────────
 
 export function reducer(state, action) {
+  const nextValue =
+    action.key === "colors" && Array.isArray(action.value)
+      ? [...action.value]
+      : action.value;
+
   switch (action.type) {
     // Navigation
     case SET_STAGE:
@@ -133,7 +138,7 @@ export function reducer(state, action) {
 
     // Pattern Lab layers
     case ADD_LAYER: {
-      const layer = makeLayer(state.editor.layers.length);
+      const layer = makeLayer(0);
       return {
         ...state,
         editor: { ...state.editor, layers: [...state.editor.layers, layer] },
@@ -170,7 +175,7 @@ export function reducer(state, action) {
         editor: {
           ...state.editor,
           layers: state.editor.layers.map((l) =>
-            l.id === action.id ? { ...l, [action.key]: action.value } : l,
+            l.id === action.id ? { ...l, [action.key]: nextValue } : l,
           ),
         },
       };
@@ -299,7 +304,7 @@ export function reducer(state, action) {
       if (!activeCl || activeCl.rings.length >= MAX_RINGS_PER_CLUSTER)
         return state;
       const maxRadius = Math.max(...activeCl.rings.map((r) => r.radius));
-      const nr = { ...makeRing(activeCl.rings.length), radius: maxRadius + 80 };
+      const nr = { ...makeRing(0), radius: maxRadius + 80 };
       return {
         ...state,
         editor: {
@@ -340,9 +345,7 @@ export function reducer(state, action) {
               ? {
                   ...c,
                   rings: c.rings.map((r) =>
-                    r.id === action.id
-                      ? { ...r, [action.key]: action.value }
-                      : r,
+                    r.id === action.id ? { ...r, [action.key]: nextValue } : r,
                   ),
                 }
               : c,
@@ -388,7 +391,7 @@ export function reducer(state, action) {
         editor: {
           ...state.editor,
           reverseDecorations: state.editor.reverseDecorations.map((d) =>
-            d.id === action.id ? { ...d, [action.key]: action.value } : d,
+            d.id === action.id ? { ...d, [action.key]: nextValue } : d,
           ),
         },
       };

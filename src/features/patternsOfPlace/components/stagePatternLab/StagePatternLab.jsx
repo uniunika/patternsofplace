@@ -184,6 +184,15 @@ export function StagePatternLab() {
       >
         ← Back
       </Button>
+      <Button
+        variant="secondary"
+        small={false}
+        T={T}
+        onClick={toggleTheme}
+        style={{ position: "fixed", top: 28, right: 28, zIndex: 100 }}
+      >
+        {theme === "dark" ? "☀" : "◐"}
+      </Button>
       {/* ── Control Rail ── */}
       <aside
         style={{
@@ -213,11 +222,6 @@ export function StagePatternLab() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-          <Button variant="secondary" small T={T} onClick={toggleTheme}>
-            {theme === "dark" ? "☀" : "◐"}
-          </Button>
-        </div>
         <Divider T={T} />
 
         {/* ── Layers ── */}
@@ -365,7 +369,7 @@ export function StagePatternLab() {
                 aria-label={name}
                 style={{
                   aspectRatio: "1",
-                  padding: 2,
+                  padding: 1,
                   border: `1.5px solid ${isActive ? T.gold : T.brd}`,
                   background: isActive ? T.surf2 : "transparent",
                   cursor: "pointer",
@@ -377,7 +381,7 @@ export function StagePatternLab() {
                   transition: "all 0.15s",
                 }}
               >
-                <MC c={active.colors} size={38} />
+                <MC c={active.colors} size={46} />
               </button>
             );
           })}
@@ -397,6 +401,7 @@ export function StagePatternLab() {
         </div>
 
         <ColorPicker
+          key={active.id}
           label="Manual Colors"
           colors={active.colors}
           onChange={(c) => upd("colors", c)}

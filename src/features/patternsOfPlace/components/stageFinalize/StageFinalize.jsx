@@ -289,47 +289,39 @@ function ReversePanel({ T, state, dispatch }) {
                   marginBottom: 8,
                 }}
               >
-                {SELECTABLE_MOTIFS.map(
-                  ({ id, component: MC, name, previewColors }) => {
-                    const isActive = active.motifId === id;
-                    return (
-                      <button
-                        key={id}
-                        onClick={() => {
-                          upd("motifId", id);
-                          upd("presetId", null);
-                        }}
-                        aria-label={name}
-                        style={{
-                          aspectRatio: "1",
-                          padding: 3,
-                          border: `1.5px solid ${isActive ? "#00e5ff" : T.brd}`,
-                          background: isActive
-                            ? "rgba(0,229,255,0.1)"
-                            : "transparent",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          borderRadius: 3,
-                          overflow: "hidden",
-                          transition: "all 0.15s",
-                        }}
-                      >
-                        <MC
-                          c={
-                            isActive
-                              ? (active.colors ?? DEFAULT_COLORS)
-                              : previewColors
-                          }
-                          size={44}
-                        />
-                      </button>
-                    );
-                  },
-                )}
+                {SELECTABLE_MOTIFS.map(({ id, component: MC, name }) => {
+                  const isActive = active.motifId === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => {
+                        upd("motifId", id);
+                        upd("presetId", null);
+                      }}
+                      aria-label={name}
+                      style={{
+                        aspectRatio: "1",
+                        padding: 1,
+                        border: `1.5px solid ${isActive ? "#00e5ff" : T.brd}`,
+                        background: isActive
+                          ? "rgba(0,229,255,0.1)"
+                          : "transparent",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: 3,
+                        overflow: "hidden",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      <MC c={active.colors ?? DEFAULT_COLORS} size={46} />
+                    </button>
+                  );
+                })}
               </div>
               <ColorPicker
+                key={active.id}
                 label="Ring Colors"
                 colors={active.colors ?? DEFAULT_COLORS}
                 onChange={(c) => upd("colors", c)}
@@ -496,7 +488,7 @@ export function StageFinalize() {
       style={{
         height: "100dvh",
         display: "flex",
-        flexDirection: "row-reverse",
+        flexDirection: "row",
         fontFamily: FONT,
         background: T.bg,
         overflow: "hidden",
@@ -512,6 +504,15 @@ export function StageFinalize() {
         style={{ position: "fixed", top: 28, left: 28, zIndex: 100 }}
       >
         ← Back
+      </Button>
+      <Button
+        variant="secondary"
+        small={false}
+        T={T}
+        onClick={toggleTheme}
+        style={{ position: "fixed", top: 28, right: 28, zIndex: 100 }}
+      >
+        {theme === "dark" ? "☀" : "◐"}
       </Button>
 
       <main
@@ -601,12 +602,6 @@ export function StageFinalize() {
           <div style={{ fontSize: 15, fontWeight: 800, color: T.txt }}>
             Your Postcard
           </div>
-        </div>
-
-        <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-          <Button variant="secondary" small T={T} onClick={toggleTheme}>
-            {theme === "dark" ? "☀" : "◐"}
-          </Button>
         </div>
 
         <div style={{ display: "flex", gap: 3, marginBottom: 12 }}>
